@@ -1,0 +1,272 @@
+{
+  "name": "Daily Weather - Tutorial Part 3",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        208
+      ],
+      "id": "3be6c2df-ad73-4ded-8e7b-8673abe62ccd",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "44dab8d1-bb0e-4bb9-8808-2cdbb33c0d38",
+              "name": "weather",
+              "value": "={{ $json.weather[0].main }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        208
+      ],
+      "id": "212a0ea6-f0f1-47df-a88c-71317f61268b",
+      "name": "Extract Weather"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1_zz5PSjQgRU2DHPhVydmzUiVFWS6uLix",
+            "mode": "list",
+            "cachedResultName": "daily_weather_image_template",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1_zz5PSjQgRU2DHPhVydmzUiVFWS6uLix"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        32,
+        416
+      ],
+      "id": "2ed7d11d-b074-421a-9c07-c42ac353d0a0",
+      "name": "Image Template File Names",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "eoEm2ICBNMuJKmhr",
+          "name": "GD kl nb"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "cityName": "manila,ph"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        0,
+        208
+      ],
+      "id": "e2674489-7f7e-43f5-a6da-ae3f7be96081",
+      "name": "Current Weather",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "D1ry60W363kLGb7z",
+          "name": "OpenWeatherMap"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {}
+          ]
+        },
+        "simplify": false,
+        "options": {
+          "systemMessage": "=- You are a great motivator\n- You provide short quotes\n\nThe quotes you provide are either one or combinations of the following:\n- Inspirational\n- Motivational\n- Philosophical\n- Wisdom\n- Success\n- Short and Minimalist\n- Thought provoking\n\nIt is important that you ONLY provide SHORT quotes, preferably a phrase or one sentence.\n\nProvide ONLY the quote. Nothing else. Do not put it in quotations.\n\nThe quote you will provide will be the quote of the day for the user. Thus, ensure to enlighten their day.\n\nid: {{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "81c54b8d-35a3-49f3-8c74-29c7c2b3d86a",
+      "name": "Get Quote",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "pFjzNnFni80ag8Lj",
+          "name": "Gemini kl nb"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Current Weather": [
+      {
+        "json": {
+          "coord": {
+            "lon": 120.9822,
+            "lat": 14.6042
+          },
+          "weather": [
+            {
+              "id": 501,
+              "main": "Rain",
+              "description": "moderate rain",
+              "icon": "10n"
+            }
+          ],
+          "base": "stations",
+          "main": {
+            "temp": 25.76,
+            "feels_like": 26.79,
+            "temp_min": 25.76,
+            "temp_max": 25.76,
+            "pressure": 1009,
+            "humidity": 92,
+            "sea_level": 1009,
+            "grnd_level": 1012
+          },
+          "visibility": 10000,
+          "wind": {
+            "speed": 2.33,
+            "deg": 213,
+            "gust": 2.86
+          },
+          "rain": {
+            "1h": 1.68
+          },
+          "clouds": {
+            "all": 100
+          },
+          "dt": 1758724248,
+          "sys": {
+            "country": "PH",
+            "sunrise": 1758663911,
+            "sunset": 1758707473
+          },
+          "timezone": 28800,
+          "id": 1701668,
+          "name": "Manila",
+          "cod": 200
+        }
+      }
+    ],
+    "Get Quote": [
+      {
+        "json": {
+          "candidates": [
+            {
+              "content": {
+                "parts": [
+                  {
+                    "text": "Embrace the journey, for the path itself is the reward."
+                  }
+                ],
+                "role": "model"
+              },
+              "finishReason": "STOP",
+              "index": 0
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 144,
+            "candidatesTokenCount": 13,
+            "totalTokenCount": 249,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 144
+              }
+            ],
+            "thoughtsTokenCount": 92
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "7QLUaK79Hpi3qtsP8sPBwAg"
+        }
+      }
+    ],
+    "Image Template File Names": [
+      {
+        "json": {
+          "id": "1Smq2Ln9PFdjvVlV3mpUmwu4hPXimySyp",
+          "name": "sunny.png"
+        }
+      },
+      {
+        "json": {
+          "id": "1PdRgt7QB4VmeyZzL9ngRiSQ6FqscnGAo",
+          "name": "rainy.png"
+        }
+      },
+      {
+        "json": {
+          "id": "1HGdQb4MlCtS1r7y0UT8iIPY52USOqRZ8",
+          "name": "cloudy.png"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Current Weather",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Quote",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Image Template File Names",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Current Weather": {
+      "main": [
+        [
+          {
+            "node": "Extract Weather",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "07ac74a9-c083-436a-81d1-75c425746c39",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7bf57e14f977a092d84939cb894297bcb7252b02c299857ac5721d4a9d18532"
+  },
+  "id": "bWxoQMvq8rshRmG4",
+  "tags": []
+}

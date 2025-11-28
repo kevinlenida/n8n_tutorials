@@ -1,0 +1,112 @@
+{
+  "name": "Daily Weather - Tutorial Part 1",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "31e86907-9e09-4e18-b774-86c807e50f05",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "cityName": "manila,ph"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1c9b6fba-18d6-4037-99fe-5b550bd41cce",
+      "name": "OpenWeatherMap",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "D1ry60W363kLGb7z",
+          "name": "OpenWeatherMap"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "OpenWeatherMap": [
+      {
+        "json": {
+          "coord": {
+            "lon": 120.9822,
+            "lat": 14.6042
+          },
+          "weather": [
+            {
+              "id": 501,
+              "main": "Rain",
+              "description": "moderate rain",
+              "icon": "10n"
+            }
+          ],
+          "base": "stations",
+          "main": {
+            "temp": 25.76,
+            "feels_like": 26.79,
+            "temp_min": 25.76,
+            "temp_max": 25.76,
+            "pressure": 1009,
+            "humidity": 92,
+            "sea_level": 1009,
+            "grnd_level": 1012
+          },
+          "visibility": 10000,
+          "wind": {
+            "speed": 2.33,
+            "deg": 213,
+            "gust": 2.86
+          },
+          "rain": {
+            "1h": 1.68
+          },
+          "clouds": {
+            "all": 100
+          },
+          "dt": 1758724248,
+          "sys": {
+            "country": "PH",
+            "sunrise": 1758663911,
+            "sunset": 1758707473
+          },
+          "timezone": 28800,
+          "id": 1701668,
+          "name": "Manila",
+          "cod": 200
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f8ef292a-f19f-46d4-b64b-513a800cc91b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7bf57e14f977a092d84939cb894297bcb7252b02c299857ac5721d4a9d18532"
+  },
+  "id": "rqhFuBeLkhIPTAMn",
+  "tags": []
+}

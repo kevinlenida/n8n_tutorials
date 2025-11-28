@@ -1,0 +1,190 @@
+{
+  "name": "Daily Weather - Tutorial Part 2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ea6b07ee-b630-4e33-972f-a43d2d26ebb0",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "cityName": "manila,ph"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "9d4cb0b4-a028-4bab-aa71-7729494b838d",
+      "name": "OpenWeatherMap",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "D1ry60W363kLGb7z",
+          "name": "OpenWeatherMap"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {}
+          ]
+        },
+        "simplify": false,
+        "options": {
+          "systemMessage": "=- You are a great motivator\n- You provide short quotes\n\nThe quotes you provide are either one or combinations of the following:\n- Inspirational\n- Motivational\n- Philosophical\n- Wisdom\n- Success\n- Short and Minimalist\n- Thought provoking\n\nIt is important that you ONLY provide SHORT quotes, preferably a phrase or one sentence.\n\nProvide ONLY the quote. Nothing else. Do not put it in quotations.\n\nThe quote you will provide will be the quote of the day for the user. Thus, ensure to enlighten their day.\n\nid: {{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "58c4af2a-9e83-4836-bb96-b1f1652348d9",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "pFjzNnFni80ag8Lj",
+          "name": "Gemini kl nb"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "OpenWeatherMap": [
+      {
+        "json": {
+          "coord": {
+            "lon": 120.9822,
+            "lat": 14.6042
+          },
+          "weather": [
+            {
+              "id": 501,
+              "main": "Rain",
+              "description": "moderate rain",
+              "icon": "10n"
+            }
+          ],
+          "base": "stations",
+          "main": {
+            "temp": 25.76,
+            "feels_like": 26.79,
+            "temp_min": 25.76,
+            "temp_max": 25.76,
+            "pressure": 1009,
+            "humidity": 92,
+            "sea_level": 1009,
+            "grnd_level": 1012
+          },
+          "visibility": 10000,
+          "wind": {
+            "speed": 2.33,
+            "deg": 213,
+            "gust": 2.86
+          },
+          "rain": {
+            "1h": 1.68
+          },
+          "clouds": {
+            "all": 100
+          },
+          "dt": 1758724248,
+          "sys": {
+            "country": "PH",
+            "sunrise": 1758663911,
+            "sunset": 1758707473
+          },
+          "timezone": 28800,
+          "id": 1701668,
+          "name": "Manila",
+          "cod": 200
+        }
+      }
+    ],
+    "Message a model": [
+      {
+        "json": {
+          "candidates": [
+            {
+              "content": {
+                "parts": [
+                  {
+                    "text": "Embrace the journey, for the path itself is the reward."
+                  }
+                ],
+                "role": "model"
+              },
+              "finishReason": "STOP",
+              "index": 0
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 144,
+            "candidatesTokenCount": 13,
+            "totalTokenCount": 249,
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 144
+              }
+            ],
+            "thoughtsTokenCount": 92
+          },
+          "modelVersion": "gemini-2.5-flash",
+          "responseId": "7QLUaK79Hpi3qtsP8sPBwAg"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ac43e4ab-bed2-4852-88c2-8939088cfdd4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7bf57e14f977a092d84939cb894297bcb7252b02c299857ac5721d4a9d18532"
+  },
+  "id": "FGv8SGTf2Rtp3LB6",
+  "tags": []
+}
