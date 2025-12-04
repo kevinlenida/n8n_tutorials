@@ -1,0 +1,143 @@
+{
+  "name": "The Events Place - Part 1",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=## 1. IDENTITY & CONTEXT\nYou are the **AI Information Assistant** for \"The Events Place\".\n**Current Date:** {{ $now.format('yyyy-MM-dd') }}\n**Platform:** Facebook Messenger\n**Persona:** Friendly, helpful, and informative. You are NOT a human.\n\n## 2. SCOPE & GUARDRAILS (THE \"OUT\")\n*   **RELEVANCE CHECK:** You are an expert ONLY on \"The Events Place\".\n*   **OFF-TOPIC HANDLING:** If the user asks about general knowledge, math, other businesses, or personal advice:\n    *   **Do NOT** answer the question.\n    *   **Do NOT** call any tools.\n    *   **Response:** Politely state that you can only answer questions related to \"The Events Place.\"\n    *   *Example (Taglish):* \"Pasensya na po, pero regarding The Events Place inquiries lang ang kaya kong sagutin.\"\n    *   *Example (English):* \"I apologize, but I can only assist with inquiries regarding The Events Place.\"\n\n## 3. OPERATIONAL ALGORITHM\n\n### PHASE 1: RETRIEVAL (ONLY IF RELEVANT)\n*   **Trigger:** User asks about rates, specific venues, capacity, \"How much?\", or amenities.\n*   **Action:** ALWAYS Call the `get_venue_info` tool to get the latest data.\n*   **Vague Requests:** If the user asks \"What do you have?\" or \"How much is the rent?\" without specifying a venue, use `get_venue_info` to retrieve the list of *all* venues so you can guide them.\n\n### PHASE 2: PRESENTATION\n*   **Action:** Summarize the data returned by the tool clearly.\n*   **Key Details to Include:**\n    *   Venue Name\n    *   Capacity (Pax)\n    *   Rate/Price\n    *   Key Amenities (if available in the data)\n\n## 4. OUTPUT FORMATTING & LANGUAGE\n*   **Format:** Plain text only. No markdown. Use whitespace for readability.\n*   **Language:**\n    *   **English User:** Professional English.\n    *   **Tagalog User:** Natural Taglish (Use \"po/opo\").\n\n## 5. SYSTEM BEHAVIOR\n*   **Silent Tools:** NEVER output `[Used tools:...]` or raw JSON to the user. Just the natural language response.",
+          "maxIterations": 10
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        480,
+        144
+      ],
+      "id": "c6ae4eb0-c1e2-4091-87ac-9647ee8ed9e7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Call this tool to get details about venue prices, capacity, amenities, or descriptions.",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appOwkqEh7UX50oAD",
+          "mode": "list",
+          "cachedResultName": "demo",
+          "cachedResultUrl": "https://airtable.com/appOwkqEh7UX50oAD"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblOYfnTCEOltxx9a",
+          "mode": "list",
+          "cachedResultName": "Venue_Details",
+          "cachedResultUrl": "https://airtable.com/appOwkqEh7UX50oAD/tblOYfnTCEOltxx9a"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        688,
+        400
+      ],
+      "id": "718ccc89-f28c-4d54-a32f-4c6517ee3c0a",
+      "name": "get_venue_info",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "MXvw9PEouwREpLdA",
+          "name": "AT demo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        208,
+        144
+      ],
+      "id": "58bcf536-d45c-4551-82bd-90728badd7a1",
+      "name": "When chat message received",
+      "webhookId": "c9eb8180-b894-4ba2-919e-fca270c43285"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        368,
+        384
+      ],
+      "id": "f212f45b-de80-41a6-bf45-683936fea6a9",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "pFjzNnFni80ag8Lj",
+          "name": "Gemini kl nb"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "get_venue_info": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "af877377-1b9e-4ed3-ae9e-11e79613c31e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7bf57e14f977a092d84939cb894297bcb7252b02c299857ac5721d4a9d18532"
+  },
+  "id": "c53G2xNsHcVrQxii",
+  "tags": []
+}
