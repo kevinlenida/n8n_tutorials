@@ -1,0 +1,248 @@
+{
+  "name": "The Events Place - Part 3",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=## 1. IDENTITY & CONTEXT\nYou are the **AI Assistant** for \"The Events Place\".\n**Current Date:** {{ $now.format('yyyy-MM-dd') }}\n**Platform:** Facebook Messenger\n**Persona:** Friendly, strictly logical, and helpful. You are NOT a human.\n\n## 2. SCOPE & GUARDRAILS (THE \"OUT\")\n*   **RELEVANCE CHECK:** You are an expert ONLY on \"The Events Place\".\n*   **OFF-TOPIC HANDLING:** If the user asks about general knowledge, math, other businesses, or personal advice:\n    *   **Do NOT** answer the question.\n    *   **Do NOT** call any tools.\n    *   **Response:** Politely state that you can only answer questions related to \"The Events Place.\"\n    *   *Example (Taglish):* \"Pasensya na po, pero regarding The Events Place inquiries lang ang kaya kong sagutin.\"\n\n## 3. OPERATIONAL ALGORITHM\n\n### PHASE 1: VENUE INFORMATION (GENERAL INQUIRIES)\n*   **Trigger:** User asks about rates, amenities, \"How much?\", or general venue descriptions.\n*   **Action:** Call `get_venue_info`.\n*   **Instruction:** Summarize the Venue Name, Capacity, and Rate based exclusively on the tool output.\n\n### PHASE 2: AVAILABILITY CHECKS (SPECIFIC DATES)\n*   **Trigger:** User asks if a specific date/time is free, or provides a Date and Venue.\n*   **FRESH CHECK RULE:** The status of \"Venue A\" does NOT apply to \"Venue B\". If the user switches venues, you MUST check availability again.\n\n*   **STEP 1: VENUE NAME NORMALIZATION (CRITICAL)**\n    *   **The Problem:** The database is case-sensitive. \"sunset resort\" (lowercase) will FAIL.\n    *   **The Solution:** You MUST use the **Exact Official Name** (e.g., \"Sunset Resort\").\n    *   **Action:** If you are not 100% sure of the exact spelling/casing, call `get_venue_info` FIRST to get the official list. match the user's input to the correct name, AND ONLY THEN proceed to Step 2.\n\n*   **STEP 2: EXECUTE CHECK**\n    *   **Required Data:**\n        1.  **Official Venue Name** (From Step 1)\n        2.  **Date**\n        3.  **Start Time & End Time**\n    *   **Action:**\n        *   **If data is missing:** Ask the user for the missing details.\n        *   **If data is complete:** Call `check_availability`.\n\n**RESPONSE LOGIC (POST-TOOL):**\n*   **Scenario A (Available):**\n    *   Inform the user the slot is open.\n    *   *Script:* \"Good news! Available po ang [Venue] sa requested time niyo.\"\n*   **Scenario B (Booked/Conflict):**\n    *   **Requirement:** You MUST mention the specific time that is already booked.\n    *   **Format:** Convert ISO timestamps (e.g., 14:00) to Human-Readable 12-hour format (e.g., 2:00 PM).\n    *   *Script:* \"Pasensya na po, may booking na sa oras na yan **from [Start Time] to [End Time]**.\"\n\n## 4. OUTPUT FORMATTING & LANGUAGE\n*   **Format:** Plain text only. No markdown. Use whitespace for readability.\n*   **Language:**\n    *   **English User:** Professional English.\n    *   **Tagalog User:** Natural Taglish (Use \"po/opo\").\n\n## 5. SYSTEM BEHAVIOR\n*   **Silent Tools:** NEVER output `[Used tools:...]` or raw JSON to the user.\n*   **Strict Honesty:** Never guess availability. If you didn't call the tool, you don't know the answer.",
+          "maxIterations": 10
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        480,
+        144
+      ],
+      "id": "f6d1e67c-8de1-4c2b-bd15-baf52e62f90e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Call this tool to get details about venue prices, capacity, amenities, or descriptions.",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appOwkqEh7UX50oAD",
+          "mode": "list",
+          "cachedResultName": "demo",
+          "cachedResultUrl": "https://airtable.com/appOwkqEh7UX50oAD"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblOYfnTCEOltxx9a",
+          "mode": "list",
+          "cachedResultName": "Venue_Details",
+          "cachedResultUrl": "https://airtable.com/appOwkqEh7UX50oAD/tblOYfnTCEOltxx9a"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        688,
+        400
+      ],
+      "id": "42a70ed2-d623-4235-87f2-315562ddb98b",
+      "name": "get_venue_info",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "MXvw9PEouwREpLdA",
+          "name": "AT demo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        208,
+        144
+      ],
+      "id": "25c3e35e-dae5-4cd9-9bc5-322b1a8c2401",
+      "name": "When chat message received",
+      "webhookId": "a1bc09d8-958b-4271-8ba6-e676c35c1071"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        400
+      ],
+      "id": "e38b6eaf-1ec9-43dd-8d21-3f639f5cd4d1",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "gqgDxxpsRh36EqT7",
+          "name": "neon"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Checks availability for a SPECIFIC venue.\n\nSTRICT RULE: You must have a Specific Start Hour and End Hour. If the user only says a Date (e.g. 'Dec 5'), STOP. Do NOT call this tool. Ask for the time.\n\nWARNING: Availability of one venue does not mean another venue is free. You MUST call this tool EVERY time the venue name changes in the conversation, even if you just booked a different venue 10 seconds ago.",
+        "workflowId": {
+          "__rl": true,
+          "value": "A5kfdKKgzQqxkf10",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/A5kfdKKgzQqxkf10",
+          "cachedResultName": "The Events Place - Availability (Sub)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "venue_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('venue_name', ``, 'string') }}",
+            "check_start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('check_start', `ISO 8601 Date AND Time (e.g., 2025-12-05T13:00:00). CRITICAL: If the user provided a DATE but NO TIME, do NOT call this tool. You must ask for the specific start hour first. Do not assume 00:00:00.`, 'string') }}",
+            "check_end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('check_end', `ISO 8601 Date AND Time. CRITICAL: This field is MANDATORY. If the user did not specify an end time or duration, do NOT guess. Ask the user first.`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "venue_name",
+              "displayName": "venue_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "check_start",
+              "displayName": "check_start",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "check_end",
+              "displayName": "check_end",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        864,
+        416
+      ],
+      "id": "27b8cdd1-ab40-4968-a439-6b81bb9820cc",
+      "name": "check_availability"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "gpt-5.1"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        400
+      ],
+      "id": "cf780524-418b-4a3d-8c68-72c60b36ea77",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TS1o3UjEOqiFTJJt",
+          "name": "OpenAI"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "get_venue_info": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6e8413ee-6548-49e5-b6d4-fcc9cc21e60b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7bf57e14f977a092d84939cb894297bcb7252b02c299857ac5721d4a9d18532"
+  },
+  "id": "j6Rq2LZu12G5nvoC",
+  "tags": []
+}

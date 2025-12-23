@@ -1,0 +1,7 @@
+﻿id,Venue_Name,Customer_Name,Start_Time,End_Time,Status,Customer_Email
+1,The Grand Hall,John Doe,2025-12-01 14:00,2025-12-01 18:00,Confirmed,john.doe@example.com
+2,The Grand Hall,Jane Smith,2025-12-15 09:00,2025-12-15 17:00,Confirmed,jane.smith@test.com
+3,Sunset Resort,Michael Scott,2025-12-05 10:00,2025-12-05 18:00,Confirmed,m.scott@paper.com
+4,The Executive Suite,Alice Wonderland,2025-12-10 13:00,2025-12-10 15:00,Tentative,alice@wonder.com
+5,The Secret Garden,Romeo Montague,2025-12-20 17:00,2025-12-20 20:00,Confirmed,romeo@verona.it
+6,Skyline Roof Deck,Tony Stark,2025-12-31 20:00,2026-01-01 02:00,Confirmed,tony@stark.com
