@@ -1,0 +1,221 @@
+{
+  "name": "The Events Place - Availability (Sub)",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "venue_name"
+            },
+            {
+              "name": "check_start"
+            },
+            {
+              "name": "check_end"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -416,
+        -128
+      ],
+      "id": "3c462ce1-8062-4874-aeb3-2e24ef6a36c9",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appOwkqEh7UX50oAD",
+          "mode": "list",
+          "cachedResultName": "demo",
+          "cachedResultUrl": "https://airtable.com/appOwkqEh7UX50oAD"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8uyT6zP0mvMVZV",
+          "mode": "list",
+          "cachedResultName": "Bookings",
+          "cachedResultUrl": "https://airtable.com/appOwkqEh7UX50oAD/tbl8uyT6zP0mvMVZV"
+        },
+        "filterByFormula": "=AND(\n  FIND('{{ $json.venue_name }}', ARRAYJOIN({Venue_Name})),\n  IS_BEFORE({Start_Time}, '{{ $json.check_end }}+08:00'),\n  IS_AFTER({End_Time}, '{{ $json.check_start }}+08:00')\n)",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -176,
+        -128
+      ],
+      "id": "aaa1b68d-47c6-4a98-ae58-40c00b3390a0",
+      "name": "Search records",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "MXvw9PEouwREpLdA",
+          "name": "AT demo"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "869dd987-aaa6-4928-94af-f2651664b00a",
+              "name": "status",
+              "value": "booked",
+              "type": "string"
+            },
+            {
+              "id": "df46c9ec-7e3c-44ec-a5a0-427b93006bad",
+              "name": "Start_Time",
+              "value": "={{ DateTime.fromISO($json.Start_Time).setZone('Asia/Manila').toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "9d6cda89-2ef2-4c5f-8ff3-8242d08b8055",
+              "name": "End_Time",
+              "value": "={{ DateTime.fromISO($json.End_Time).setZone('Asia/Manila').toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        -240
+      ],
+      "id": "97cc73da-b567-4637-8f02-d5045c1e1a52",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b3f0d9f8-05a8-4fba-8b47-5dddadc586d9",
+              "leftValue": "={{ $json.keys().length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        32,
+        -128
+      ],
+      "id": "afdcfd9c-e9c1-459b-998f-1a1be7641d0c",
+      "name": "is booked?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "869dd987-aaa6-4928-94af-f2651664b00a",
+              "name": "status",
+              "value": "available",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        -64
+      ],
+      "id": "81b42070-d89d-46f4-a7f0-0a460b8623c8",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "venue_name": "Sunset Resort",
+          "check_start": "2025-12-05T12:00:00",
+          "check_end": "2025-12-05T18:00:00"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "is booked?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is booked?": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "28c3dace-bb0a-41a7-a97c-14735b931f00",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b7bf57e14f977a092d84939cb894297bcb7252b02c299857ac5721d4a9d18532"
+  },
+  "id": "A5kfdKKgzQqxkf10",
+  "tags": []
+}
